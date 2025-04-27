@@ -2,7 +2,7 @@ type Project = {
   name: string
   description: string
   link: string
-  video: string
+  image: string
   id: string
 }
 
@@ -29,49 +29,41 @@ type SocialLink = {
 
 export const PROJECTS: Project[] = [
   {
-    name: 'Motion Primitives Pro',
+    name: 'NeuroKeypoint AR',
     description:
-      'Advanced components and templates to craft beautiful websites.',
-    link: 'https://pro.motion-primitives.com/',
-    video:
-      'https://res.cloudinary.com/read-cv/video/upload/t_v_b/v1/1/profileItems/W2azTw5BVbMXfj7F53G92hMVIn32/newProfileItem/d898be8a-7037-4c71-af0c-8997239b050d.mp4?_a=DATAdtAAZAA0',
+      'Neuronavigation app for iPhones using augmented reality to guide surgeons during brain surgeries.',
+    link: 'https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://www.youtube.com/watch%3Fv%3DPMHef4Bts7E&ved=2ahUKEwi--Yj8-vWMAxU7GLkGHRJDCV8QtwJ6BAgqEAI&usg=AOvVaw0UCJZ579Kb67SDVSBBKEq0',
+    image:
+      'https://pub-4156699f48e3436d9bc00c2a132210cb.r2.dev/nkar-preview.jpg',
     id: 'project1',
   },
   {
-    name: 'Motion Primitives',
-    description: 'UI kit to make beautiful, animated interfaces.',
-    link: 'https://motion-primitives.com/',
-    video:
-      'https://res.cloudinary.com/read-cv/video/upload/t_v_b/v1/1/profileItems/W2azTw5BVbMXfj7F53G92hMVIn32/XSfIvT7BUWbPRXhrbLed/ee6871c9-8400-49d2-8be9-e32675eabf7e.mp4?_a=DATAdtAAZAA0',
+    name: 'pFFR',
+    description: 'A tool to help cardiologists decide on the best treatment for coronary artery disease.',
+    link: 'a',
+    image:
+      'https://pub-4156699f48e3436d9bc00c2a132210cb.r2.dev/pffr-preview.jpg',
     id: 'project2',
   },
 ]
 
 export const WORK_EXPERIENCE: WorkExperience[] = [
   {
-    company: 'Reglazed Studio',
-    title: 'CEO',
+    company: 'MyCardium AI',
+    title: 'Developer',
     start: '2024',
     end: 'Present',
-    link: 'https://ibelick.com',
+    link: 'https://www.mycardium.com',
     id: 'work1',
   },
   {
-    company: 'Freelance',
-    title: 'Design Engineer',
-    start: '2022',
-    end: '2024',
-    link: 'https://ibelick.com',
-    id: 'work2',
-  },
-  {
-    company: 'Freelance',
-    title: 'Front-end Developer',
-    start: '2017',
-    end: 'Present',
-    link: 'https://ibelick.com',
-    id: 'work3',
-  },
+    company: 'Federal University of Sergipe',
+    title: 'Medical Student',
+    start: '2019',
+    end: '2025',
+    link: 'https://http://www.ufs.br',
+    id: 'education1',
+  }
 ]
 
 export const BLOG_POSTS: BlogPost[] = [
@@ -100,20 +92,8 @@ export const BLOG_POSTS: BlogPost[] = [
 export const SOCIAL_LINKS: SocialLink[] = [
   {
     label: 'Github',
-    link: 'https://github.com/ibelick',
-  },
-  {
-    label: 'Twitter',
-    link: 'https://twitter.com/ibelick',
-  },
-  {
-    label: 'LinkedIn',
-    link: 'https://www.linkedin.com/in/ibelick',
-  },
-  {
-    label: 'Instagram',
-    link: 'https://www.instagram.com/ibelick',
+    link: 'https://github.com/naccib',
   },
 ]
 
-export const EMAIL = 'your@email.com'
+export const EMAIL = 'guilherme.almeida422@gmail.com'
