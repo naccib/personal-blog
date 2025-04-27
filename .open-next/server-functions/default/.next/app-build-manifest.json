@@ -1,0 +1,61 @@
+{
+  "pages": {
+    "/_not-found/page": [
+      "static/chunks/webpack-6405ef9acf0ddcb8.js",
+      "static/chunks/4bd1b696-033283023f57a2ef.js",
+      "static/chunks/517-517b9dc9e570b5b1.js",
+      "static/chunks/main-app-5a6b7adb15dae35b.js",
+      "static/chunks/app/_not-found/page-9de5d1119dd37782.js"
+    ],
+    "/layout": [
+      "static/chunks/webpack-6405ef9acf0ddcb8.js",
+      "static/chunks/4bd1b696-033283023f57a2ef.js",
+      "static/chunks/517-517b9dc9e570b5b1.js",
+      "static/chunks/main-app-5a6b7adb15dae35b.js",
+      "static/css/990eb172a0ba8522.css",
+      "static/chunks/271-5d72223c04a0c798.js",
+      "static/chunks/173-3044383a6cc07dcd.js",
+      "static/chunks/app/layout-0e654c5668208509.js"
+    ],
+    "/page": [
+      "static/chunks/webpack-6405ef9acf0ddcb8.js",
+      "static/chunks/4bd1b696-033283023f57a2ef.js",
+      "static/chunks/517-517b9dc9e570b5b1.js",
+      "static/chunks/main-app-5a6b7adb15dae35b.js",
+      "static/chunks/271-5d72223c04a0c798.js",
+      "static/chunks/30-5683195e23173be1.js",
+      "static/chunks/173-3044383a6cc07dcd.js",
+      "static/chunks/app/page-3d20ea1991920e78.js"
+    ],
+    "/blog/layout": [
+      "static/chunks/webpack-6405ef9acf0ddcb8.js",
+      "static/chunks/4bd1b696-033283023f57a2ef.js",
+      "static/chunks/517-517b9dc9e570b5b1.js",
+      "static/chunks/main-app-5a6b7adb15dae35b.js",
+      "static/chunks/271-5d72223c04a0c798.js",
+      "static/chunks/app/blog/layout-8829933ed1b3e044.js"
+    ],
+    "/blog/exploring-the-intersection-of-design-ai-and-design-engineering/page": [
+      "static/chunks/webpack-6405ef9acf0ddcb8.js",
+      "static/chunks/4bd1b696-033283023f57a2ef.js",
+      "static/chunks/517-517b9dc9e570b5b1.js",
+      "static/chunks/main-app-5a6b7adb15dae35b.js",
+      "static/chunks/app/blog/exploring-the-intersection-of-design-ai-and-design-engineering/page-7941f1d63443925f.js"
+    ],
+    "/minigram/layout": [
+      "static/chunks/webpack-6405ef9acf0ddcb8.js",
+      "static/chunks/4bd1b696-033283023f57a2ef.js",
+      "static/chunks/517-517b9dc9e570b5b1.js",
+      "static/chunks/main-app-5a6b7adb15dae35b.js",
+      "static/chunks/app/minigram/layout-2c748050f0604033.js"
+    ],
+    "/minigram/page": [
+      "static/chunks/webpack-6405ef9acf0ddcb8.js",
+      "static/chunks/4bd1b696-033283023f57a2ef.js",
+      "static/chunks/517-517b9dc9e570b5b1.js",
+      "static/chunks/main-app-5a6b7adb15dae35b.js",
+      "static/chunks/30-5683195e23173be1.js",
+      "static/chunks/app/minigram/page-0953e9a6ee096f05.js"
+    ]
+  }
+}
