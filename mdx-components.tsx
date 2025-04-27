@@ -1,4 +1,8 @@
+
 import type { MDXComponents } from 'mdx/types'
+
+import CodeWithImage from '@/components/blog/code-with-image'
+import Code from '@/components/blog/code'
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
@@ -19,5 +23,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
         </figure>
       )
     },
+    CodeWithImage,
+    Code
   }
 }

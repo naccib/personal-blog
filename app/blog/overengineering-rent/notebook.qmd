@@ -1,0 +1,195 @@
+---
+title: "Overengineering Rent"
+date: 2025-04-27
+jupyter: python3
+---
+
+# 1. Imports
+
+```{python}
+GOOGLE_KEY = 'YOUR-KEY-HERE'
+
+import pandas as pd
+import numpy as np
+import googlemaps
+
+import bokeh
+from bokeh.io import output_notebook, show
+from bokeh.plotting import gmap
+from bokeh.models import GMapOptions
+
+from dataclasses import dataclass
+
+from math import sin, cos, pi
+
+output_notebook()
+
+PLOT_HEIGHT = 500
+PLOT_WIDTH = 400
+```
+
+# 2. Initialize Google Maps client
+
+```{python}
+gmaps = googlemaps.Client(key=GOOGLE_KEY)
+
+print(f"Initialized gmaps with client ID: {gmaps.client_id}")
+```
+
+# 3. Plot a map
+
+```{python}
+@dataclass
+class ImportantLocation:
+    name: str
+    lat: float
+    lng: float
+
+@dataclass
+class GridSearchResultItem:
+    lat: float
+    lng: float
+    average_travel_time: float
+
+london_center = (51.50425133902997, -0.1552040684608198)
+
+locations = [
+    ImportantLocation(name="Hammersmith Hospital", lat=51.4944, lng=-0.2414),
+    ImportantLocation(name="Charing Cross Hospital", lat=51.4845, lng=-0.219),
+    ImportantLocation(name="St. Mary's Hospital", lat=51.51772267862134, lng=-0.17428906090211027),
+]
+```
+
+```{python}
+def plot_map(
+    center: tuple[float, float],
+    zoom: int = 10,
+    locations: list[ImportantLocation] = None,
+    grid: list[tuple[float, float]] = None,
+    search_result: list[GridSearchResultItem] = None,
+):
+    gmap_options = GMapOptions(
+        lat=center[0],
+        lng=center[1],
+        zoom=zoom,
+    )
+
+    fig = gmap(
+        GOOGLE_KEY,
+        gmap_options,
+        width=PLOT_WIDTH,
+        height=PLOT_HEIGHT,
+    )
+
+    if locations:
+        for location in locations:
+            fig.circle(location.lng, location.lat, size=10, color="purple", alpha=0.5)
+
+    if grid:
+        for point in grid:
+            fig.circle(point[1], point[0], size=4, color="blue", alpha=0.5)
+
+    if search_result:
+        for item in search_result:
+            fig.circle(item.lng, item.lat, size=encode_size(item.average_travel_time), color=encode_color(item.average_travel_time), alpha=0.5)
+
+    show(fig)
+
+    return fig
+
+def encode_color(travel_time: float) -> str:
+    if travel_time < 15 * 60:
+        return "green"
+    elif travel_time < 30 * 60:
+        return "yellow"
+    else:
+        return "red"
+
+
+def encode_size(travel_time: float) -> int:
+    if travel_time < 15 * 60:
+        return 8
+    elif travel_time < 30 * 60:
+        return 4
+    else:
+        return 1
+```
+
+# 4. Grid sampling
+
+```{python}
+def create_grid(center: tuple[float, float], radius: float, resolution: float) -> list[tuple[float, float]]:
+    """
+    Creates a grid of equally spaced points around the center point.
+
+    Args:
+        center: The center point of the grid.
+        radius: The radius of the grid.
+        resolution: The resolution of the grid.
+
+    Returns:
+        A list of tuples, each containing the latitude and longitude of a point in the grid.
+    """
+
+    grid = []
+
+    x0 = center[0] - radius
+    x1 = center[0] + radius
+    y0 = center[1] - radius
+    y1 = center[1] + radius
+
+    for x in np.arange(x0, x1, resolution):
+        for y in np.arange(y0, y1, resolution):
+            grid.append((x, y))
+
+    return grid
+
+grid = create_grid(london_center, 0.1, 0.025)
+
+plot_map(london_center, locations=locations, grid=grid, zoom=10)
+```
+
+# 5. Get travel times
+
+```{python}
+def grid_search(grid: list[tuple[float, float]], locations: list[ImportantLocation]) -> list[GridSearchResultItem]:
+    travel_times = []
+
+    locations_coords = [(l.lat, l.lng) for l in locations]
+
+    for point in grid:
+        matrix = gmaps.distance_matrix(point, locations_coords, mode="driving")["rows"][0]['elements']
+
+        avg_time = np.mean([element['duration']['value'] for element in matrix])
+
+        travel_times.append(GridSearchResultItem(point[0], point[1], avg_time))
+
+    return travel_times
+
+print(f'Getting travel times for {len(grid)} points...')
+
+search_result = grid_search(grid, locations)
+```
+
+```{python}
+search_df = pd.DataFrame(search_result).sort_values(by='average_travel_time', ascending=True).head(10)
+
+search_df
+```
+
+```{python}
+plot_map(london_center, locations=locations, search_result=search_result, zoom=10)
+```
+
+# 6. Reverse geocode the best locations
+
+```{python}
+best_df = pd.DataFrame(search_result).sort_values(by='average_travel_time', ascending=True).head(10)
+
+best_df
+```
+
+```{python}
+best_df['address'] = best_df.apply(lambda row: gmaps.reverse_geocode((row['lat'], row['lng'])), axis=1)
+```
+

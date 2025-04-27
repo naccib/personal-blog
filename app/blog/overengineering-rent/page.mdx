@@ -1,0 +1,275 @@
+<Cover
+  src="https://imgs.xkcd.com/comics/the_general_problem.png"
+  alt="The General Problem"
+  caption="Me, right now (xkcd.com)"
+/>
+
+# Overengineering Rent
+
+Coming from a privileged background in a low-income country, I've never really had to worry about rent. Well, since I moved out
+of my parents' house, I've been comfortably paying £150 a month for a room in the city I grew up in.
+
+Through a combination of luck and effort, I managed to meet a exquisite research group and pivot my career into a field that I'm passionate about.
+Now, time has come to leave my brazilian nest and venture into one of the world's most expensive cities: London.
+
+As with any big city, London's rent is outrageous. And it's not only for us internationals, the locals are also struggling with the high cost of living.
+At least they know a bit more about the local market than I do. 
+
+Being very, uh..., "pragmatic", I decided to try and find a way to choose the best area to rent in London using my favorite tool: data.
+
+## Google Maps
+
+I _love_ Google Maps. It's a marvel of engineering and design and changed the way all of us navigate the world. 
+They have an API that, while cumbersome (as with any Google API), is very powerful. Let's see how far we can go with it to find
+the _best_ area to rent in London for _me_.
+
+_I initially wanted to do all of this in MDX, but the thought of exposing my API key to the world made me shudder. So, I'll be using
+Python._
+
+With an API key in hand, let's take a look at the map of London.
+
+export const plotCode = `def plot_map(
+    center: tuple[float, float],
+    zoom: int = 10,
+):
+    gmap_options = GMapOptions(
+        lat=center[0],
+        lng=center[1],
+        zoom=zoom,
+    )
+
+    fig = gmap(
+        GOOGLE_KEY,
+        gmap_options,
+        width=PLOT_WIDTH,
+        height=PLOT_HEIGHT,
+    )
+
+    show(fig)
+
+    return fig
+
+plot_map((51.5074, -0.0796))
+`
+
+<CodeWithImage
+  image="/blog/overengineering-rent/london-map.jpg"
+  code={plotCode}
+  filename="rent.py"
+  display="stacked"
+/>
+
+Great! We can see London, but there is absolutely no way to tell which
+area is the best to rent in just by looking at a map of this huge city.
+
+I keep using the word "best", but what actually makes an area the best to live in?
+
+## What makes an area the best to live in?
+
+In Portuguese we have a saying that roughly translates to "naming the cattle". That is, in order to
+solve any kind of problem, we need to clearly define what we're looking for - i.e, name the variables we're solving for.
+
+Particularly, I'm moving to London to work as a doctor and software developer. Thus, I expect to find myself
+spending most of my time in hospitals - specifically, West London hospitals such as Hammersmith, Charing Cross and St. Mary's.
+
+One of the most important things for me is to be able to go to these
+places as quickly as possible.
+
+Let's start by plotting the location of these places.
+
+To make this clean, I'll define a `dataclass` to represent the location of these places.
+
+export const locationDefCode = `@dataclass
+class ImportantLocation:
+    name: str
+    lat: float
+    lng: float
+
+locations = [
+    ImportantLocation(name="Hammersmith Hospital", lat=51.4944, lng=-0.2414),
+    ImportantLocation(name="Charing Cross Hospital", lat=51.4845, lng=-0.219),
+    ImportantLocation(name="St. Mary's Hospital", lat=51.51772267862134, lng=-0.17428906090211027),
+]
+`
+
+<Code filename="rent.py" code={locationDefCode} />
+
+We can then update our plotting function to include these locations.
+
+export const locationPlotCode = `def plot_map(
+    center: tuple[float, float],
+    zoom: int = 10,
+    locations: list[ImportantLocation] = None,
+):
+    gmap_options = GMapOptions(
+        lat=center[0],
+        lng=center[1],
+        zoom=zoom,
+    )
+
+    fig = gmap(
+        GOOGLE_KEY,
+        gmap_options,
+        width=PLOT_WIDTH,
+        height=PLOT_HEIGHT,
+    )
+
+    if locations:
+        for location in locations:
+            fig.circle(location.lng, location.lat, size=10, color="red", alpha=0.5)
+
+    show(fig)
+
+    return fig
+
+plot_map((51.5074, -0.0796), locations=locations)
+`
+
+<CodeWithImage
+  image="/blog/overengineering-rent/london-map-with-locations.jpg"
+  code={locationPlotCode}
+  filename="rent.py"
+  display="stacked"
+/>
+
+## Grid search
+
+The first thing that comes to mind when I think about finding the best area to rent in London is to use a grid search.
+
+Specifically, I'll create a grid of points around London and then use the Google Maps API to average the travel times from these points to the hospitals.
+
+Let's start by creating a grid of points around London and adding support to plot it on the map.
+
+export const gridDefCode = `def create_grid(center: tuple[float, float], radius: float, resolution: float) -> list[tuple[float, float]]:
+    """
+    Creates a grid of equally spaced points around the center point.
+
+    Args:
+        center: The center point of the grid.
+        radius: The radius of the grid.
+        resolution: The resolution of the grid.
+
+    Returns:
+        A list of tuples, each containing the latitude and longitude of a point in the grid.
+    """
+
+    grid = []
+
+    x0 = center[0] - radius
+    x1 = center[0] + radius
+    y0 = center[1] - radius
+    y1 = center[1] + radius
+
+    for x in np.arange(x0, x1, resolution):
+        for y in np.arange(y0, y1, resolution):
+            grid.append((x, y))
+
+    return grid
+
+grid = create_grid(london_center, 0.1, 0.025)
+
+plot_map(london_center, locations=locations, grid=grid, zoom=10)
+`
+
+<CodeWithImage
+  image="/blog/overengineering-rent/london-map-with-grid.jpg"
+  code={gridDefCode}
+  filename="rent.py"
+  display="stacked"
+/>
+
+Now, let's get the travel times from each of these blue points to the hospitals and average them.
+
+export const gridSearchCode = `def grid_search(grid: list[tuple[float, float]], locations: list[ImportantLocation]) -> list[GridSearchResultItem]:
+    travel_times = []
+
+    locations_coords = [(l.lat, l.lng) for l in locations]
+
+    for point in grid:
+        matrix = gmaps.distance_matrix(point, locations_coords, mode="driving")["rows"][0]['elements']
+
+        avg_time = np.mean([element['duration']['value'] for element in matrix])
+
+        travel_times.append(GridSearchResultItem(point[0], point[1], avg_time))
+
+    return travel_times
+
+print(f'Getting travel times for {len(grid)} points...')
+
+search_result = grid_search(grid, locations)
+`
+
+<Code filename="rent.py" code={gridSearchCode} />
+
+Now, let's plot the results on the map. I'll color the points red when the travel time is less than 15 minutes, yellow when it's between 15 and 30 minutes, and green when it's more than 30 minutes. Their sizes will be proportional to the travel time.
+
+export const gridSearchPlotCode = `def plot_map(
+    center: tuple[float, float],
+    zoom: int = 10,
+    locations: list[ImportantLocation] = None,
+    grid: list[tuple[float, float]] = None,
+    search_result: list[GridSearchResultItem] = None,
+):
+    gmap_options = GMapOptions(
+        lat=center[0],
+        lng=center[1],
+        zoom=zoom,
+    )
+
+    fig = gmap(
+        GOOGLE_KEY,
+        gmap_options,
+        width=PLOT_WIDTH,
+        height=PLOT_HEIGHT,
+    )
+
+    if locations:
+        for location in locations:
+            fig.circle(location.lng, location.lat, size=10, color="purple", alpha=0.5)
+
+    if grid:
+        for point in grid:
+            fig.circle(point[1], point[0], size=4, color="blue", alpha=0.5)
+
+    if search_result:
+        for item in search_result:
+            fig.circle(item.lng, item.lat, size=encode_size(item.average_travel_time), color=encode_color(item.average_travel_time), alpha=0.5)
+
+    show(fig)
+
+    return fig
+
+def encode_color(travel_time: float) -> str:
+    if travel_time < 15 * 60:
+        return "green"
+    elif travel_time < 30 * 60:
+        return "yellow"
+    else:
+        return "red"
+
+
+def encode_size(travel_time: float) -> int:
+    if travel_time < 15 * 60:
+        return 8
+    elif travel_time < 30 * 60:
+        return 4
+    else:
+        return 1
+`
+
+<CodeWithImage
+  image="/blog/overengineering-rent/london-map-with-grid-search.jpg"
+  code={gridSearchPlotCode}
+  filename="rent.py"
+  display="stacked"
+/>
+
+## Reverse geocode the best locations
+
+## Conclusion
+
+I'm not sure if I'm going to move to one of these areas, but at least I know where to look now.
+
+There are a bunch of other factors to consider, the cost of living, amenities and all that, but having an starting point is better than nothing. 
+
+I could also implement hierarchical grid search, where I start with a coarse grid and then refine the search around the best areas, but this will do for now.
