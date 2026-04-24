@@ -7,7 +7,7 @@ jupyter: python3
 # 1. Imports
 
 ```{python}
-GOOGLE_KEY = 'YOUR-KEY-HERE'
+GOOGLE_KEY = 'AIzaSyDS0YB7YQELsdMp2u5QUxMAhIhhvcxB5-U'
 
 import pandas as pd
 import numpy as np
@@ -191,5 +191,11 @@ best_df
 
 ```{python}
 best_df['address'] = best_df.apply(lambda row: gmaps.reverse_geocode((row['lat'], row['lng'])), axis=1)
+
+best_df
+```
+
+```{python}
+best_df
 ```
 

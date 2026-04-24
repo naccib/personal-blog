@@ -50,14 +50,14 @@ export const PROJECTS: Project[] = [
 export const WORK_EXPERIENCE: WorkExperience[] = [
   {
     company: 'MyCardium AI',
-    title: 'Developer',
+    title: 'Software Engineer',
     start: '2024',
-    end: 'Present',
+    end: '2025',
     link: 'https://www.mycardium.com',
     id: 'work1',
   },
   {
-    company: 'Federal University of Sergipe',
+    company: 'Universidade Federal de Sergipe',
     title: 'Medical Student',
     start: '2019',
     end: '2025',
